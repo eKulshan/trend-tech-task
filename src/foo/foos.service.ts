@@ -1,4 +1,3 @@
-
 import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -12,7 +11,28 @@ export class FoosService {
     return this.fooModel.findOne({ name }).exec();
   }
 
-  findAll(): Promise<Foo[]> {
-    return this.fooModel.find().limit(10).exec();
+  async createCollection() {
+    if ((await this.fooModel.countDocuments()) > 0) {
+      await this.fooModel.collection.drop();
+    }
+
+    let foosCount = 0;
+    const foosTargetCount = 10 ** 7;
+
+    while (foosCount < foosTargetCount) {
+      const data = Array.from({ length: 5000 }, () => new Foo());
+      const foos = await this.fooModel.insertMany(data);
+      foosCount += foos.length;
+    }
+
+    return foosCount;
+  }
+
+  async createNameIndex() {
+    await this.fooModel.createIndexes();
+  }
+
+  async dropNameIndex() {
+    await this.fooModel.collection.dropIndex('name_1');
   }
 }

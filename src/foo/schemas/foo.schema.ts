@@ -1,4 +1,3 @@
-
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { randomBytes } from 'crypto';
 import { HydratedDocument } from 'mongoose';

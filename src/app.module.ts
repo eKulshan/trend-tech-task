@@ -2,11 +2,23 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { FoosController } from './foo/foos.controller';
 import { FoosModule } from './foo/foos.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
-  imports: [MongooseModule.forRoot('mongodb://admin:password@localhost:27017/trend_task?authSource=admin'), FoosModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true, // Makes ConfigModule available throughout the app
+    }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('MONGO_URI'),
+      }),
+      inject: [ConfigService],
+    }),
+    FoosModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
